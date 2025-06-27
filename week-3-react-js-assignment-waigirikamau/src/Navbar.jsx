@@ -1,24 +1,21 @@
-import { useTheme } from '../contexts/ThemeContext'
+import { useTheme } from './ThemeContext';
 
-const Navbar = () => {
-  const { theme, toggleTheme } = useTheme()
-  
+export default function Navbar() {
+  const { darkMode, setDarkMode } = useTheme();
+
   return (
-    <nav className="bg-white dark:bg-gray-900 shadow-sm">
-      <div className="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
-        {/* ... existing logo and nav links ... */}
-        
+    <nav className="bg-blue-600 text-white p-4 flex justify-between items-center">
+      <h1 className="text-xl font-bold">My App</h1>
+      <div className="flex items-center space-x-4">
+        <a href="/" className="hover:underline">Home</a>
+        <a href="/tasks" className="hover:underline">Tasks</a>
         <button
-          onClick={toggleTheme}
-          className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700"
+          onClick={() => setDarkMode(!darkMode)}
+          className="px-3 py-1 bg-white text-black rounded transition duration-300"
         >
-          {theme === 'dark' ? (
-            <span className="text-yellow-400">☀️</span>
-          ) : (
-            <span className="text-gray-600">🌙</span>
-          )}
+          {darkMode ? 'Light Mode' : 'Dark Mode'}
         </button>
       </div>
     </nav>
-  )
+  );
 }

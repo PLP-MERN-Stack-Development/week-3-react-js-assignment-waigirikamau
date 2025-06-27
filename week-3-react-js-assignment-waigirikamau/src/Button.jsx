@@ -1,23 +1,9 @@
-const Button = ({ 
-  children, 
-  variant = 'primary', 
-  className = '', 
-  ...props 
-}) => {
+export default function Button({ variant = "primary", children, ...props }) {
+  const base = "px-4 py-2 rounded transition duration-300 ";
   const variants = {
-    primary: 'bg-blue-600 hover:bg-blue-700 text-white',
-    secondary: 'bg-gray-200 hover:bg-gray-300 text-gray-800',
-    danger: 'bg-red-600 hover:bg-red-700 text-white'
-  }
-  
-  return (
-    <button
-      className={`px-4 py-2 rounded-md transition-colors ${variants[variant]} ${className}`}
-      {...props}
-    >
-      {children}
-    </button>
-  )
-}
-
-export default Button
+    primary: "bg-blue-500 text-white hover:bg-blue-600",
+    secondary: "bg-gray-300 text-black hover:bg-gray-400",
+    danger: "bg-red-500 text-white hover:bg-red-600",
+  };
+  return <button className={`${base} ${variants[variant]}`} {...props}>{children}</button>;
+}  

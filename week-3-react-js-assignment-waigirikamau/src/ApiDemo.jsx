@@ -1,101 +1,89 @@
-import { useState, useEffect } from 'react'
-import Card from '../components/Card'
-import Button from '../components/Button'
+import { useEffect, useState, useRef, useCallback } from 'react';
 
-const ApiDemo = () => {
-  const [posts, setPosts] = useState([])
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState(null)
-  const [page, setPage] = useState(1)
-  const [searchTerm, setSearchTerm] = useState('')
-  
-  const fetchPosts = async () => {
-    try {
-      setLoading(true)
-      setError(null)
-      const response = await fetch(
-        `https://jsonplaceholder.typicode.com/posts?_page=${page}&_limit=10`
-      )
-      if (!response.ok) throw new Error('Failed to fetch posts')
-      const data = await response.json()
-      setPosts(prev => [...prev, ...data])
-    } catch (err) {
-      setError(err.message)
-    } finally {
-      setLoading(false)
-    }
-  }
-  
+export default function ApiDemo() {
+  const [posts, setPosts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [query, setQuery] = useState('');
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const observer = useRef();
+
+  const POSTS_PER_PAGE = 10;
+
   useEffect(() => {
-    fetchPosts()
-  }, [page])
-  
-  const filteredPosts = posts.filter(post =>
-    post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    post.body.toLowerCase().includes(searchTerm.toLowerCase())
-  )
-  
-  const loadMore = () => {
-    setPage(prev => prev + 1)
-  }
-  
-  return (
-    <div className="max-w-4xl mx-auto">
-      <Card className="mb-6">
-        <h1 className="text-2xl font-bold mb-4 text-gray-800 dark:text-white">API Demo</h1>
-        
-        <div className="mb-4">
-          <input
-            type="text"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Search posts..."
-            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
-          />
-        </div>
-        
-        {error && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-            {error}
-          </div>
-        )}
-        
-        {loading && page === 1 ? (
-          <div className="text-center py-8">Loading...</div>
-        ) : (
-          <div className="grid gap-4">
-            {filteredPosts.length === 0 ? (
-              <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-                No posts found
-              </div>
-            ) : (
-              filteredPosts.map(post => (
-                <div 
-                  key={post.id} 
-                  className="p-4 border border-gray-200 dark:border-gray-700 rounded-md hover:shadow-md transition-shadow"
-                >
-                  <h3 className="font-bold text-lg mb-2 text-gray-800 dark:text-white">
-                    {post.title}
-                  </h3>
-                  <p className="text-gray-600 dark:text-gray-300">
-                    {post.body}
-                  </p>
-                </div>
-              ))
-            )}
-          </div>
-        )}
-        
-        {!loading && posts.length > 0 && (
-          <div className="mt-6 text-center">
-            <Button onClick={loadMore} disabled={loading}>
-              {loading ? 'Loading...' : 'Load More'}
-            </Button>
-          </div>
-        )}
-      </Card>
-    </div>
-  )
-}
+    setLoading(true);
+    fetch(`https://jsonplaceholder.typicode.com/posts?_page=${page}&_limit=${POSTS_PER_PAGE}`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.length === 0) {
+          setHasMore(false);
+        } else {
+          setPosts(prev => [...prev, ...data]);
+        }
+        setLoading(false);
+      })
+      .catch(err => {
+        setError('Failed to load posts');
+        setLoading(false);
+      });
+  }, [page]);
 
-export default ApiDemo
+  const filteredPosts = posts.filter(p =>
+    p.title.toLowerCase().includes(query.toLowerCase())
+  );
+
+  const lastPostRef = useCallback(
+    node => {
+      if (loading) return;
+      if (observer.current) observer.current.disconnect();
+      observer.current = new IntersectionObserver(entries => {
+        if (entries[0].isIntersecting && hasMore) {
+          setPage(prev => prev + 1);
+        }
+      });
+      if (node) observer.current.observe(node);
+    },
+    [loading, hasMore]
+  );
+
+  return (
+    <div className="px-4 py-10 max-w-4xl mx-auto">
+      <h2 className="text-3xl font-bold mb-6 text-center">API Demo</h2>
+
+      <img
+        src="https://images.pexels.com/photos/3184465/pexels-photo-3184465.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=400"
+        alt="Team working on API"
+        className="rounded-xl shadow mb-8 w-full object-cover"
+      />
+
+      <input
+        type="text"
+        value={query}
+        onChange={e => setQuery(e.target.value)}
+        placeholder="Search posts..."
+        className="w-full px-4 py-2 mb-6 rounded border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-black dark:text-white"
+      />
+
+      {error && <p className="text-center text-red-500">{error}</p>}
+
+      <ul className="space-y-4">
+        {filteredPosts.map((post, index) => {
+          const isLast = index === filteredPosts.length - 1;
+          return (
+            <li
+              key={post.id}
+              ref={isLast ? lastPostRef : null}
+              className="bg-white dark:bg-gray-800 p-4 rounded shadow"
+            >
+              <h3 className="text-xl font-semibold mb-2">{post.title}</h3>
+              <p className="text-gray-700 dark:text-gray-300">{post.body}</p>
+            </li>
+          );
+        })}
+      </ul>
+
+      {loading && <p className="text-center text-gray-500 mt-4">Loading...</p>}
+    </div>
+  );
+}

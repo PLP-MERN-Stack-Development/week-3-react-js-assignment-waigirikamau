@@ -1,112 +1,74 @@
-import { useState } from 'react'
-import useLocalStorage from '../hooks/useLocalStorage'
-import Card from '../components/Card'
-import Button from '../components/Button'
+import { useState, useEffect } from 'react';
+import useLocalStorage from './useLocalStorage';
 
-const Tasks = () => {
-  const [tasks, setTasks] = useLocalStorage('tasks', [])
-  const [newTask, setNewTask] = useState('')
-  const [filter, setFilter] = useState('all')
+export default function Tasks() {
+  const [tasks, setTasks] = useLocalStorage('tasks', []);
+  const [newTask, setNewTask] = useState('');
+  const [filter, setFilter] = useState('All');
 
   const addTask = () => {
     if (newTask.trim()) {
-      setTasks([...tasks, { id: Date.now(), text: newTask, completed: false }])
-      setNewTask('')
+      setTasks([...tasks, { text: newTask, completed: false }]);
+      setNewTask('');
     }
-  }
+  };
 
-  const toggleTask = (id) => {
-    setTasks(tasks.map(task => 
-      task.id === id ? { ...task, completed: !task.completed } : task
-    ))
-  }
+  const toggleTask = (index) => {
+    const updated = [...tasks];
+    updated[index].completed = !updated[index].completed;
+    setTasks(updated);
+  };
 
-  const deleteTask = (id) => {
-    setTasks(tasks.filter(task => task.id !== id))
-  }
+  const deleteTask = (index) => {
+    setTasks(tasks.filter((_, i) => i !== index));
+  };
 
-  const filteredTasks = tasks.filter(task => {
-    if (filter === 'active') return !task.completed
-    if (filter === 'completed') return task.completed
-    return true
-  })
+  const filtered = tasks.filter(t =>
+    filter === 'All' ? true : filter === 'Completed' ? t.completed : !t.completed
+  );
 
   return (
-    <div className="max-w-2xl mx-auto">
-      <Card className="mb-6">
-        <h1 className="text-2xl font-bold mb-4 text-gray-800 dark:text-white">Task Manager</h1>
-        
-        <div className="flex gap-2 mb-4">
-          <input
-            type="text"
-            value={newTask}
-            onChange={(e) => setNewTask(e.target.value)}
-            onKeyPress={(e) => e.key === 'Enter' && addTask()}
-            placeholder="Add a new task"
-            className="flex-grow px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
-          />
-          <Button onClick={addTask}>Add</Button>
-        </div>
-        
-        <div className="flex gap-2 mb-4">
-          <Button 
-            variant={filter === 'all' ? 'primary' : 'secondary'} 
-            onClick={() => setFilter('all')}
-          >
-            All
-          </Button>
-          <Button 
-            variant={filter === 'active' ? 'primary' : 'secondary'} 
-            onClick={() => setFilter('active')}
-          >
-            Active
-          </Button>
-          <Button 
-            variant={filter === 'completed' ? 'primary' : 'secondary'} 
-            onClick={() => setFilter('completed')}
-          >
-            Completed
-          </Button>
-        </div>
-        
-        <ul className="space-y-2">
-          {filteredTasks.length === 0 ? (
-            <li className="text-gray-500 dark:text-gray-400 text-center py-4">
-              No tasks found
+    <div className="px-4 py-10 max-w-4xl mx-auto">
+      <h2 className="text-3xl font-bold mb-6 text-center">Task Manager</h2>
+      <div className="flex flex-col sm:flex-row gap-4 mb-6">
+        <input
+          value={newTask}
+          onChange={e => setNewTask(e.target.value)}
+          placeholder="New Task"
+          className="flex-1 px-4 py-2 rounded border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-black dark:text-white"
+        />
+        <button
+          onClick={addTask}
+          className="bg-blue-600 text-white px-5 py-2 rounded hover:bg-blue-700"
+        >Add</button>
+      </div>
+      <div className="flex gap-4 justify-center mb-6">
+        {['All', 'Active', 'Completed'].map(f => (
+          <button
+            key={f}
+            onClick={() => setFilter(f)}
+            className={`px-4 py-1 rounded-full border dark:border-gray-600 ${filter === f ? 'bg-blue-600 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-white'}`}
+          >{f}</button>
+        ))}
+      </div>
+      {filtered.length === 0 ? (
+        <p className="text-center text-gray-500">No tasks found.</p>
+      ) : (
+        <ul className="space-y-4">
+          {filtered.map((task, i) => (
+            <li key={i} className="bg-white dark:bg-gray-800 p-4 rounded shadow flex justify-between items-center">
+              <div>
+                <p className={`text-lg ${task.completed ? 'line-through text-gray-400' : ''}`}>{task.text}</p>
+                <small className="text-xs text-gray-500">{task.completed ? 'Completed' : 'Pending'}</small>
+              </div>
+              <div className="flex gap-2">
+                <button onClick={() => toggleTask(i)} className="px-3 py-1 bg-yellow-400 text-black rounded hover:bg-yellow-500">Toggle</button>
+                <button onClick={() => deleteTask(i)} className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700">Delete</button>
+              </div>
             </li>
-          ) : (
-            filteredTasks.map(task => (
-              <li 
-                key={task.id} 
-                className="flex items-center justify-between p-3 bg-gray-100 dark:bg-gray-700 rounded-md"
-              >
-                <div className="flex items-center">
-                  <input
-                    type="checkbox"
-                    checked={task.completed}
-                    onChange={() => toggleTask(task.id)}
-                    className="h-5 w-5 text-blue-600 rounded focus:ring-blue-500"
-                  />
-                  <span 
-                    className={`ml-3 ${task.completed ? 'line-through text-gray-500 dark:text-gray-400' : 'text-gray-800 dark:text-white'}`}
-                  >
-                    {task.text}
-                  </span>
-                </div>
-                <Button 
-                  variant="danger" 
-                  size="sm"
-                  onClick={() => deleteTask(task.id)}
-                >
-                  Delete
-                </Button>
-              </li>
-            ))
-          )}
+          ))}
         </ul>
-      </Card>
+      )}
     </div>
-  )
+  );
 }
-
-export default Tasks

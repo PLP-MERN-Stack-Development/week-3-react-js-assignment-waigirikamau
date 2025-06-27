@@ -1,34 +1,41 @@
-# React with Tailwind CSS Assignment
+# 🧠 React Task Manager App
 
-A responsive React application demonstrating component architecture, state management, hooks usage, and API integration.
+A responsive, theme-enabled React app built using Vite, JSX, and Tailwind CSS. This application includes a task manager with state management and an API integration demo using JSONPlaceholder.
 
-## Features
+---
 
-- Task management system
-- API integration with JSONPlaceholder
-- Dark/light theme toggle
-- Responsive design
-- Custom hooks
-- React Router navigation
+## 🚀 Features
 
-## Screenshots
+- 📋 Add, delete, and complete tasks
+- 🎯 Filter tasks (All, Active, Completed)
+- 💾 Tasks are saved using `localStorage`
+- 🌙 Light/Dark theme toggle (via Context)
+- 🔍 API data fetching with infinite scroll and search
+- 📱 Fully responsive on all screen sizes
 
-![Home Page](./screenshots/home.png)
-![Tasks Page](./screenshots/tasks.png)
-![API Demo Page](./screenshots/api-demo.png)
+---
 
-## Setup
+## 🛠️ Technologies Used
 
-1. Clone the repository
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-3. Start the development server:
-   ```bash
-   npm run dev
-   ```
+- React + Vite
+- Tailwind CSS
+- React Router DOM
+- Custom Hooks (`useLocalStorage`)
+- Pexels images for visuals
 
-## Deployment
+---
 
-The application is deployed on Vercel: [Live Demo](https://your-vercel-url.vercel.app)
+## 🔧 Getting Started Locally
+
+### Prerequisites
+
+- Node.js (v18+ recommended)
+- npm
+
+### Setup
+
+```bash
+git clone https://github.com/YOUR_USERNAME/YOUR_REPO_NAME.git
+cd YOUR_REPO_NAME
+npm install
+npm run dev

@@ -1,20 +1,12 @@
-import { useContext } from 'react'
-import Navbar from './Navbar'
-import Footer from './Footer'
-import { ThemeContext } from '../contexts/ThemeContext'
+import Navbar from './Navbar';
+import Footer from './Footer';
 
-const Layout = ({ children }) => {
-  const { theme } = useContext(ThemeContext)
-  
+export default function Layout({ children }) {
   return (
-    <div className={`min-h-screen flex flex-col ${theme === 'dark' ? 'dark bg-gray-900' : 'bg-gray-50'}`}>
+    <div className="flex flex-col min-h-screen">
       <Navbar />
-      <main className="flex-grow container mx-auto px-4 py-8">
-        {children}
-      </main>
+      <main className="flex-1">{children}</main>
       <Footer />
     </div>
-  )
+  );
 }
-
-export default Layout

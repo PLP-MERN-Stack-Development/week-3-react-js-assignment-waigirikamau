@@ -1,19 +1,17 @@
-import { Routes, Route } from 'react-router-dom'
-import Layout from './components/Layout'
-import Home from './pages/Home'
-import Tasks from './pages/Tasks'
-import ApiDemo from './pages/ApiDemo'
+import { Routes, Route } from 'react-router-dom';
+import Layout from './Layout';
+import Home from './Home';
+import Tasks from './Tasks';
+import ApiDemo from './ApiDemo';
 
-function App() {
+export default function App() {
   return (
-    <Routes>
-      <Route path="/" element={<Layout />}>
-        <Route index element={<Home />} />
-        <Route path="tasks" element={<Tasks />} />
-        <Route path="api-demo" element={<ApiDemo />} />
-      </Route>
-    </Routes>
-  )
+    <Layout>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/tasks" element={<Tasks />} />
+        <Route path="/api" element={<ApiDemo />} />
+      </Routes>
+    </Layout>
+  );
 }
-
-export default App
